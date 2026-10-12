@@ -654,6 +654,7 @@ public class SystemManagementService {
     public IdResponse createConfig(ConfigWriteRequest request) {
         String name = required(request.getName(), "参数名称不能为空");
         String key = required(request.getKey(), "参数键名不能为空");
+        rejectOcrConfig(key);
         String value = required(request.getValue(), "参数键值不能为空");
         if (mapper.countConfigKey(key, null) > 0) {
             throw new BusinessException("参数键名已存在");
@@ -671,6 +672,7 @@ public class SystemManagementService {
 
     @Transactional
     public void updateConfig(Long id, ConfigWriteRequest request) {
+        rejectOcrConfig(mapper.selectConfigKey(id));
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("name", trimToNull(request.getName()));
         row.put("value", trimToNull(request.getValue()));
@@ -684,8 +686,15 @@ public class SystemManagementService {
 
     @Transactional
     public void deleteConfig(Long id) {
+        rejectOcrConfig(mapper.selectConfigKey(id));
         if (mapper.deleteConfig(id) == 0) {
             throw new BusinessException("参数配置不存在或为内置参数");
+        }
+    }
+
+    private void rejectOcrConfig(String key) {
+        if (key != null && key.trim().toLowerCase(java.util.Locale.ROOT).startsWith("bookkeeping.ocr.")) {
+            throw new BusinessException(403, "OCR 配置只能通过专用管理接口修改");
         }
     }
 

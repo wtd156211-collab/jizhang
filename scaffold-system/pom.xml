@@ -32,6 +32,7 @@
         <module>scaffold-framework</module>
         <module>scaffold-system</module>
         <module>scaffold-generator</module>
+        <module>scaffold-bookkeeping</module>
         <module>scaffold-admin</module>
     </modules>
 
@@ -64,6 +65,11 @@
             <dependency>
                 <groupId>com.scaffold</groupId>
                 <artifactId>scaffold-generator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-bookkeeping</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

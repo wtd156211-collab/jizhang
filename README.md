@@ -100,6 +100,14 @@ python3 scripts/session-regression.py
 
 浏览器回归脚本只创建并删除自己生成的测试角色和用户，不清空表；管理员密码可通过 `SCAFFOLD_TEST_PASSWORD` 覆盖。测试与构建成功不能代替业务页面验收。
 
+## Web 记账与 OCR
+
+记账模块已接入财务工作台、账目列表、录入 / 详情、票据与 OCR 人工确认、审核中心、报表与服务端 Excel 导出、记账基础配置和管理员 OCR 配置页面，沿用当前 UI 组件与主题。已有开发库需先执行 V3 建表、V4 菜单与配置，再重启并重新登录。财务统计按实际发生日期，金额仅统计未删除的已入账记录。
+
+操作步骤见 [Web 记账使用说明](docs/bookkeeping-web-guide.md)。阿里云凭据在“OCR 配置”页面保存；后端先设置固定的 `BOOKKEEPING_SECRET_KEY` 加密主密钥，原票据独立私有保存。接口字段、权限和云验证边界见 [记账 OCR 联调说明](docs/bookkeeping-ocr.md)。
+
+在项目根目录运行 `./scripts/test-bookkeeping-review.ps1` 可创建独立 MySQL 测试容器验证审核与 OCR 事务；脚本不使用开发库，结束后清理容器。OCR 测试使用模拟云响应，不会调用收费接口。
+
 ## 许可证
 
 本项目代码采用 [MIT License](LICENSE)，允许商用、修改和分发，使用时保留版权及许可证声明。

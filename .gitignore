@@ -30,6 +30,7 @@
 **/node_modules/
 **/dist/
 **/target/
+**/data/bookkeeping/
 **/coverage/
 **/__pycache__/
 **/.venv/
@@ -42,6 +43,8 @@ scaffold-vue/.tmp-*
 /docs/superpowers/
 /docs/product-technical-plan.md
 /docs/frontend-architecture.png
+/output/playwright/
+/.playwright-cli/
 
 # 前端品牌配置与业务类型是必要源码，覆盖本机可能存在的 data/ 全局忽略。
 !/scaffold-vue/src/data/

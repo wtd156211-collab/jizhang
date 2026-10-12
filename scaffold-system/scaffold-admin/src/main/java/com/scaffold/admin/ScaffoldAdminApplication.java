@@ -6,7 +6,8 @@ import org.mybatis.spring.annotation.MapperScan;
 
 @MapperScan({
         "com.scaffold.system.mapper",
-        "com.scaffold.generator.mapper"
+        "com.scaffold.generator.mapper",
+        "com.scaffold.bookkeeping.mapper"
 })
 @SpringBootApplication(scanBasePackages = "com.scaffold")
 public class ScaffoldAdminApplication {

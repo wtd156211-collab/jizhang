@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<{
   valueKey?: 'id' | 'nickname'
   placeholder?: string
   clearable?: boolean
+  data?: Array<{ id: number; nickname: string; username: string }>
 }>(), {
   valueKey: 'id',
   placeholder: '请选择用户',
@@ -19,6 +20,7 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: string | number | nul
 const users = ref<Array<{ id: number; nickname: string; username: string }>>([])
 
 onMounted(async () => {
+  if (props.data) return
   try {
     const page = await systemApi.users.list({ pageNum: 1, pageSize: 100, status: 1 })
     users.value = page.rows.map(u => ({ id: u.id, nickname: u.nickname, username: u.username }))
@@ -28,7 +30,7 @@ onMounted(async () => {
 })
 
 const options = computed(() => {
-  const list = users.value.map(u => ({ label: u.nickname, value: props.valueKey === 'id' ? u.id : u.nickname, hint: u.username }))
+  const list = (props.data ?? users.value).map(u => ({ label: u.nickname, value: props.valueKey === 'id' ? u.id : u.nickname, hint: u.username }))
   // 当前值不在列表中（例如历史数据）时仍然显示出来
   if (props.modelValue && !list.some(o => o.value === props.modelValue)) {
     list.unshift({ label: String(props.modelValue), value: props.modelValue, hint: '' })

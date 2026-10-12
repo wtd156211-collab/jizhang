@@ -11,6 +11,10 @@ const props = withDefaults(defineProps<{
   values: number[]
   labels: string[]
   secondary?: number[]
+  /** 精确显示值与坐标分离，财务金额不经浮点转换后显示。 */
+  displayValues?: string[]
+  secondaryDisplayValues?: string[]
+  tickFormatter?: (value: number) => string
   secondaryLabel?: string
   primaryLabel?: string
   height?: number
@@ -135,7 +139,7 @@ const xLabels = computed(() => {
   return props.labels.map((label, i) => ({ label, i })).filter(({ i }) => i % step === 0 || i === n - 1)
 })
 const showAllDots = computed(() => props.dots && props.values.length <= 12)
-const sparse = computed(() => props.values.length > 6 && props.values.filter(v => v > 0).length <= 3 && props.values.some(v => v > 0))
+const sparse = computed(() => !props.secondary?.length && props.values.length > 6 && props.values.filter(v => v > 0).length <= 3 && props.values.some(v => v > 0))
 const stems = computed(() => target.value.map((p, i) => ({ ...p, i, v: props.values[i], v2: props.secondary?.[i] ?? 0, y2: props.secondary ? yAt(props.secondary[i] ?? 0) : 0 })))
 const bandRect = computed(() => {
   if (!props.band || props.values.length < 2) return null
@@ -218,7 +222,7 @@ watch(() => [props.values, props.secondary], morphTo, { immediate: true })
       </g>
       <rect v-if="bandRect" :x="bandRect.x" :y="PAD.top" :width="bandRect.w" :height="innerH" :fill="`url(#th-${uid})`" class="trend-band" />
       <g class="trend-axis">
-        <text v-for="t in ticks" :key="`l${t.y}`" :x="PAD.left - 10" :y="t.y + 3.5" text-anchor="end">{{ t.label }}</text>
+        <text v-for="t in ticks" :key="`l${t.y}`" :x="PAD.left - 10" :y="t.y + 3.5" text-anchor="end">{{ tickFormatter ? tickFormatter(t.label) : t.label }}</text>
         <text v-for="l in xLabels" :key="`x${l.i}`" :x="target[l.i]?.x" :y="height - 8" text-anchor="middle">{{ l.label }}</text>
       </g>
       <g v-if="sparse" class="trend-stems">
@@ -229,7 +233,7 @@ watch(() => [props.values, props.secondary], morphTo, { immediate: true })
             <line class="trend-stem" :x1="st.x" :x2="st.x" :y1="PAD.top + innerH" :y2="st.y" />
             <line v-if="st.v2" class="trend-stem is-secondary" :x1="st.x + 3" :x2="st.x + 3" :y1="PAD.top + innerH" :y2="st.y2" />
             <circle class="trend-dot" :cx="st.x" :cy="st.y" r="4.5" />
-            <text class="trend-stem-label" :x="st.x" :y="st.y - 12" text-anchor="middle">{{ st.v }}{{ unit }}</text>
+            <text class="trend-stem-label" :x="st.x" :y="st.y - 12" text-anchor="middle">{{ tickFormatter ? tickFormatter(st.v) : st.v }}{{ unit }}</text>
           </g>
         </template>
       </g>
@@ -252,8 +256,8 @@ watch(() => [props.values, props.secondary], morphTo, { immediate: true })
     </svg>
     <div v-if="hover !== null && target[hover]" ref="tip" class="trend-tip m-float">
       <span class="eyebrow">{{ labels[hover] }}</span>
-      <span class="trend-tip-row"><i class="tip-key is-primary" />{{ primaryLabel }}<b class="tnum">{{ values[hover] }}{{ unit }}</b></span>
-      <span v-if="secondary?.length" class="trend-tip-row"><i class="tip-key is-secondary" />{{ secondaryLabel }}<b class="tnum">{{ secondary[hover] }}{{ unit }}</b></span>
+      <span class="trend-tip-row"><i class="tip-key is-primary" />{{ primaryLabel }}<b class="tnum">{{ displayValues?.[hover] ?? values[hover] }}{{ unit }}</b></span>
+      <span v-if="secondary?.length" class="trend-tip-row"><i class="tip-key is-secondary" />{{ secondaryLabel }}<b class="tnum">{{ secondaryDisplayValues?.[hover] ?? secondary[hover] }}{{ unit }}</b></span>
     </div>
   </div>
 </template>

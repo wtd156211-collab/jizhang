@@ -5,7 +5,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:scaffold_system}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    password: ${DB_PASSWORD:wtd156211}
     hikari:
       data-source-properties:
         connectionTimeZone: "${DB_TIMEZONE:+08:00}"
@@ -15,6 +15,15 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+bookkeeping:
+  storage:
+    root: ${BOOKKEEPING_STORAGE_ROOT:./data/bookkeeping}
+    max-bytes: ${BOOKKEEPING_ATTACHMENT_MAX_BYTES:10485760}
 
 logging:
   level:

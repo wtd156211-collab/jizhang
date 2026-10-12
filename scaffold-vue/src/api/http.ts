@@ -53,8 +53,13 @@ export function createHttpClient(options: HttpClientOptions = {}): HttpClient {
     if (token) headers.Authorization = `Bearer ${token}`
     const init: RequestInit = { method, headers }
     if (body !== undefined) {
-      headers['Content-Type'] = 'application/json'
-      init.body = JSON.stringify(body)
+      if (body instanceof FormData) {
+        // 浏览器生成 multipart boundary，统一保留认证及错误处理。
+        init.body = body
+      } else {
+        headers['Content-Type'] = 'application/json'
+        init.body = JSON.stringify(body)
+      }
     }
 
     const response = await fetcher(buildUrl(baseUrl, path, query), init)

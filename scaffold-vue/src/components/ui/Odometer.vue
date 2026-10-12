@@ -4,7 +4,8 @@ import { computed, onMounted, ref } from 'vue'
 /* 逐位滚动读数（结 Crystallize）：每一位是一条 0–9 的竖带，只有变化的位会滚。
    位次按「从右往左」编号作为 key，位数变化时个位、十位不会错位重排。 */
 const props = withDefaults(defineProps<{
-  value: number | null | undefined
+  value?: number | null
+  displayText?: string
   decimals?: number
   /** 千分位分隔 */
   group?: boolean
@@ -23,6 +24,7 @@ onMounted(() => {
 })
 
 const text = computed(() => {
+  if (props.displayText !== undefined) return props.displayText
   if (props.value === null || props.value === undefined || Number.isNaN(props.value)) return '—'
   return Number(props.value).toLocaleString('en-US', {
     minimumFractionDigits: props.decimals,

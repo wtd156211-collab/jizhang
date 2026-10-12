@@ -27,6 +27,10 @@
             <artifactId>scaffold-generator</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-bookkeeping</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
         </dependency>

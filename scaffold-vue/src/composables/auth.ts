@@ -47,6 +47,12 @@ const COMPONENT_MAP: Record<string, () => Promise<{ default: Component }>> = {
   'monitor/operlog/index': () => import('@/views/monitor/OperLog.vue'),
   'monitor/loginlog/index': () => import('@/views/monitor/LoginLog.vue'),
   'tool/gen/index': () => import('@/views/tool/Generator.vue'),
+  'bookkeeping/records/index': () => import('@/views/bookkeeping/Records.vue'),
+  'bookkeeping/dashboard/index': () => import('@/views/bookkeeping/BookkeepingDashboard.vue'),
+  'bookkeeping/reports/index': () => import('@/views/bookkeeping/Reports.vue'),
+  'bookkeeping/reviews/index': () => import('@/views/bookkeeping/Reviews.vue'),
+  'bookkeeping/config/index': () => import('@/views/bookkeeping/Config.vue'),
+  'bookkeeping/ocr-config/index': () => import('@/views/bookkeeping/OcrConfig.vue'),
 }
 
 /** 路由名由路径推导：/system/user → system-user */

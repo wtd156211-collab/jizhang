@@ -5,7 +5,9 @@ import Icon from '@/components/Icon.vue'
 const props = withDefaults(defineProps<{
   modelValue?: string | number | null
   placeholder?: string
-  type?: 'text' | 'password' | 'number' | 'email' | 'tel'
+  type?: 'text' | 'password' | 'number' | 'email' | 'tel' | 'date' | 'time'
+  step?: string
+  inputmode?: 'text' | 'decimal' | 'numeric'
   icon?: string
   invalid?: boolean
   disabled?: boolean
@@ -60,6 +62,8 @@ defineExpose({ focus: () => el.value?.focus() })
       v-else
       ref="el"
       :type="type"
+      :step="step"
+      :inputmode="inputmode"
       :value="modelValue ?? ''"
       :placeholder="placeholder"
       :disabled="disabled"

@@ -7,6 +7,7 @@ import { gsap, motionSkipped, EASE } from '@/composables/motion'
 const props = withDefaults(defineProps<{
   values: number[]
   labels: string[]
+  displayValues?: string[]
   failed?: number[]
   highlight?: number | null
   height?: number
@@ -47,7 +48,7 @@ onBeforeUnmount(() => gsap.killTweensOf(bars.value?.querySelectorAll('.bar-col')
         :class="['bar-slot', { 'is-hover': hover === i }]"
         @pointerenter="hover = i"
       >
-        <span v-if="hover === i || (hover === null && i === peakIndex && v > 0)" class="bar-readout tnum">{{ v }}{{ unit }}</span>
+        <span v-if="hover === i || (hover === null && i === peakIndex && v > 0)" class="bar-readout tnum" :title="`${displayValues?.[i] ?? v}${unit}`">{{ displayValues?.[i] ?? v }}{{ unit }}</span>
         <div
           :class="['bar-col', { 'is-highlight': i === highlight }]"
           :style="{ height: `${Math.max(v ? 4 : 2, (v / max) * 100)}%` }"

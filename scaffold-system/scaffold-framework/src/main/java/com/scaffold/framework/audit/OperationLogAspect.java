@@ -14,6 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Locale;
 
 @Aspect
 @Component
@@ -68,16 +71,39 @@ public class OperationLogAspect {
 
     private String params(Object[] args) {
         try {
-            JsonNode root = objectMapper.valueToTree(args);
+            ArrayNode root = objectMapper.createArrayNode();
+            for (Object arg : args) root.add(argumentNode(arg));
             maskSensitiveFields(root);
             return objectMapper.writeValueAsString(root);
-        } catch (JsonProcessingException error) {
+        } catch (JsonProcessingException | IllegalArgumentException error) {
             return "[]";
         }
     }
 
+    private JsonNode argumentNode(Object arg) {
+        if (arg instanceof MultipartFile file) {
+            ObjectNode metadata = objectMapper.createObjectNode();
+            metadata.put("originalName", file.getOriginalFilename());
+            metadata.put("mimeType", file.getContentType());
+            metadata.put("fileSize", file.getSize());
+            return metadata;
+        }
+        if (arg instanceof MultipartFile[] files) {
+            ArrayNode metadata = objectMapper.createArrayNode();
+            for (MultipartFile file : files) metadata.add(argumentNode(file));
+            return metadata;
+        }
+        return objectMapper.valueToTree(arg);
+    }
+
     private void maskSensitiveFields(JsonNode node) {
         if (node instanceof ObjectNode objectNode) {
+            JsonNode key = objectNode.has("key") ? objectNode.get("key") : objectNode.get("configKey");
+            if (key != null && key.isTextual() && (isSensitive(key.asText())
+                    || key.asText().trim().toLowerCase(Locale.ROOT).startsWith("bookkeeping.ocr."))) {
+                if (objectNode.has("value")) objectNode.put("value", "******");
+                if (objectNode.has("configValue")) objectNode.put("configValue", "******");
+            }
             objectNode.fieldNames().forEachRemaining(field -> {
                 JsonNode child = objectNode.get(field);
                 if (isSensitive(field)) {
@@ -94,11 +120,12 @@ public class OperationLogAspect {
     }
 
     private boolean isSensitive(String field) {
-        String lower = field.toLowerCase();
+        String lower = field.toLowerCase(Locale.ROOT).replace("_", "").replace("-", "");
         return lower.contains("password")
                 || lower.contains("token")
                 || lower.contains("secret")
-                || lower.contains("authorization");
+                || lower.contains("authorization")
+                || lower.contains("apikey");
     }
 
     private String currentUsername() {

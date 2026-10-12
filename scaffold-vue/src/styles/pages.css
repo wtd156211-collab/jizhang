@@ -246,6 +246,40 @@
 .hero-readouts dt, .ring-readouts dt { font-size: 11px; color: var(--ink-faint); }
 .hero-readouts dd, .ring-readouts dd { margin: 3px 0 0; font-size: 15px; font-weight: 680; }
 .hero-chart { min-width: 0; }
+.finance-grid { margin-bottom: 20px; }
+.finance-category-table { margin-bottom: 20px; }
+.finance-grid .metric-figure { max-width: 100%; overflow-x: auto; padding-bottom: 4px; }
+.finance-grid .metric-l { font-size: clamp(20px, 2.3vw, 36px); }
+.finance-period, .finance-date-range { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.finance-period { margin: 0 0 20px; }
+.finance-date-range { align-items: flex-end; }
+.finance-date-range .field { width: 165px; }
+.finance-legend { display: flex; gap: 18px; justify-content: flex-end; font-size: 11px; color: var(--ink-soft); }
+.finance-legend > span { display: inline-flex; gap: 6px; align-items: center; }
+.finance-shares { --cat-ink: var(--ink-muted); }
+.finance-grid .bar-readout { white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+.finance-state-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.finance-state-list > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+.finance-recent-amount { font-size: 13px; max-width: 38%; overflow-wrap: anywhere; }
+.finance-grid .activity-main { min-width: 0; }
+.finance-grid .activity-main .link-btn { text-align: left; overflow-wrap: anywhere; }
+.picker-menu { padding: 12px; overflow: auto; }
+.picker-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; }
+.picker-nav, .picker-day, .picker-time { border: 0; background: transparent; color: var(--ink); border-radius: var(--r-sm); }
+.picker-nav { width: 28px; height: 28px; display: grid; place-items: center; }
+.picker-week, .picker-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center; }
+.picker-week { color: var(--ink-faint); font-size: 11px; margin-bottom: 5px; }
+.picker-day { height: 32px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.picker-day:hover, .picker-nav:hover, .picker-time:hover { background: var(--hover-bg); }
+.picker-day.is-today { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.picker-day.is-selected, .picker-time.is-selected { background: var(--lime); color: #142008; font-weight: 650; }
+.picker-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line-strong); padding-top: 10px; margin-top: 10px; }
+.time-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.time-column { min-width: 0; }
+.time-heading { display: block; text-align: center; font-size: 11px; color: var(--ink-faint); padding-bottom: 8px; }
+.time-options { overflow-y: auto; height: 172px; display: flex; flex-direction: column; gap: 3px; overscroll-behavior: contain; }
+.picker-time { flex: none; height: 30px; font-size: 12px; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .finance-grid .metric-l { font-size: 32px; } .finance-date-range { width: 100%; } .finance-date-range .field { flex: 1; min-width: 120px; } .finance-recent-amount { max-width: 32%; } }
 .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .pill-btn {
@@ -503,3 +537,34 @@
 .cmd-ask-hint { margin: 0; font-size: 11.5px; }
 .cmd-ask-results { display: flex; flex-direction: column; gap: 8px; }
 .dash-net { height: 232px; border: 0; box-shadow: none; background: none; border-radius: var(--r-lg); }
+
+/* 记账业务差异：控件/浮层/表格继续使用公共主题。 */
+.bk-total { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.bk-details { min-width: 0; }
+.bk-detail-row { padding: 14px 0; border-top: 1px solid var(--line); }
+.bk-section { margin-top: 22px; }
+.bk-section > .section-label { margin-bottom: 12px; }
+.bk-file { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.bk-file > div:first-child { min-width: 0; flex: 1 1 180px; overflow-wrap: anywhere; }
+.bk-file p { font-size: 12px; margin-top: 4px; }
+.bk-preview { margin: 16px 0; }
+.bk-preview img { display: block; max-width: 100%; max-height: 420px; object-fit: contain; margin: 0 auto; border-radius: var(--r-xs); }
+.bk-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
+.bk-summary-title { font-size: 18px; font-weight: 650; margin: 12px 0 4px; overflow-wrap: anywhere; }
+.bk-amount { font-size: 27px; overflow-wrap: anywhere; }
+.bk-history { list-style: none; padding: 0; margin: 0; }
+.bk-history li { border-left: 2px solid var(--line-strong); padding: 0 0 18px 16px; }
+.bk-history li b { display: block; margin-bottom: 4px; }
+.bk-history li span, .bk-history li p { font-size: 12px; }
+.bk-diff { padding: 16px; background: var(--groove-bg); border-radius: var(--r-md); }
+.bk-diff > div { padding-top: 14px; }
+.bk-diff pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; margin: 6px 0; }
+.bk-config-body { padding: 22px; max-width: 960px; }
+.bk-config-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+.bk-config-actions { display: flex; align-items: center; gap: 10px; margin: 22px 0 12px; }
+.bk-config-body > .soft { font-size: 12px; }
+@media (max-width: 600px) {
+  .bk-config-body { padding: 16px; }
+  .drawer-foot { flex-wrap: wrap; }
+  .bk-amount { font-size: 23px; }
+}

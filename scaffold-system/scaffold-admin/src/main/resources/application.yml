@@ -10,7 +10,7 @@ server:
 scaffold:
   api-prefix: /api
   jwt:
-    secret: "${JWT_SECRET}"
+    secret: abcdefghijklmnopqrstuvwxyz123456
     expires-seconds: 7200
 
 mybatis-plus:

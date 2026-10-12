@@ -1,9 +1,12 @@
 package com.scaffold.system.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ConfigWriteRequest {
 
     private String name;
     private String key;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String value;
     private String type;
     private Boolean builtin;

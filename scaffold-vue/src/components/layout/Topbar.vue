@@ -4,7 +4,8 @@ import { useRoute } from 'vue-router'
 import Icon from '@/components/Icon.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Avatar from '@/components/ui/Avatar.vue'
-import { currentUser } from '@/composables/auth'
+import { currentUser, pathOf } from '@/composables/auth'
+import WorkspaceSwitch from './WorkspaceSwitch.vue'
 import { overlayEnter, overlayLeave } from '@/composables/motion'
 
 const emit = defineEmits<{
@@ -23,6 +24,7 @@ const pos = ref({ top: 0, right: 0 })
 
 const group = computed(() => route.meta.group as string | undefined)
 const title = computed(() => route.meta.title as string | undefined)
+const isWorkspace = computed(() => [pathOf('dashboard/index'),pathOf('bookkeeping/dashboard/index')].includes(route.path))
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
 
 async function openMenu() {
@@ -73,7 +75,8 @@ onBeforeUnmount(() => closeMenu())
 <template>
   <header class="topbar">
     <IconButton name="sidebar" label="切换导航" @click="emit('toggle-rail')" />
-    <div class="crumbs" aria-label="当前位置">
+    <WorkspaceSwitch v-if="isWorkspace" />
+    <div v-else class="crumbs" aria-label="当前位置">
       <template v-if="group"><span>{{ group }}</span><Icon class="crumb-sep" name="chevronRight" :size="12" /></template>
       <span class="crumb-current">{{ title }}</span>
     </div>

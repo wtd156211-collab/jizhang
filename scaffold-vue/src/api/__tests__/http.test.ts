@@ -2,6 +2,26 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHttpClient, ApiError, setUnauthorizedHandler } from '../http.ts'
 
+test('multipart upload preserves binary data and lets fetch set its boundary', async () => {
+  let captured: RequestInit | undefined
+  const client = createHttpClient({
+    tokenProvider: () => 'upload-session',
+    fetcher: async (_url, init) => {
+      captured = init
+      return new Response(JSON.stringify({ code: 200, data: { id: 12 } }))
+    },
+  })
+  const body = new FormData()
+  body.append('file', new Blob(['%PDF-original-receipt'], { type: 'application/pdf' }), '票据.pdf')
+  body.append('primary', 'true')
+
+  assert.deepEqual(await client.post('/bookkeeping/records/1/attachments', body), { id: 12 })
+  assert.equal(captured?.body, body)
+  assert.equal(new Headers(captured?.headers).get('content-type'), null)
+  assert.equal(new Headers(captured?.headers).get('authorization'), 'Bearer upload-session')
+  assert.equal(await (body.get('file') as Blob).text(), '%PDF-original-receipt')
+})
+
 test('http client sends bearer token and unwraps unified response data', async () => {
   const calls: Array<{ url: string; init: RequestInit }> = []
   const fetcher = async (url: string | URL | Request, init?: RequestInit) => {

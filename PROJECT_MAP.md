@@ -1,6 +1,6 @@
 # 通用后台管理脚手架项目地图
 
-> 2026-10-11 更新。用于后续业务开发和排障；“已确认”表示代码链路已核对，运行验证记录见 `changelog.md`。数据库映射已与本地 MySQL 5.7 的真实结构及两份初始化脚本核对。
+> 2026-10-12 更新。用于后续业务开发和排障；“已确认”表示代码链路已核对，运行验证记录见 `changelog.md`。记账配置、草稿、私有票据、审核、历史、阿里云 OCR、财务工作台、报表和 Excel 导出已接入 Web 页面；独立 MySQL 与模拟 HTTP 浏览器验证已覆盖关键流程。开发库 V3/V4 与真实云联调仍待使用者完成。
 
 ## 一、项目总览
 
@@ -9,10 +9,10 @@
 | 后端 | `scaffold-system` | Java 17+、Spring Boot 3.5、MyBatis、MySQL、Redis、JWT | `8080`，接口前缀 `/api` | 已确认 |
 | 管理后台 | `scaffold-vue` | Vue 3、TypeScript、Vite、Vue Router、GSAP，自有组件 | `5173`，开发代理 `/api` | 已确认 |
 
-- Maven 模块：`scaffold-common`、`scaffold-framework`、`scaffold-system`、`scaffold-generator`、`scaffold-admin`。
+- Maven 模块：`scaffold-common`、`scaffold-framework`、`scaffold-system`、`scaffold-generator`、`scaffold-bookkeeping`、`scaffold-admin`。
 - 包名前缀：`com.scaffold`；启动类：`scaffold-system/scaffold-admin/src/main/java/com/scaffold/admin/ScaffoldAdminApplication.java`。
 - 配置：`scaffold-system/scaffold-admin/src/main/resources/application.yml`、`application-dev.yml`；前端代理：`scaffold-vue/vite.config.ts`。
-- 数据库初始化：`scaffold-system/sql/V1__init_schema.sql`、`V2__seed_data.sql`；开发工具：`scaffold-admin/src/main/java/com/scaffold/admin/util/DbInit.java`。
+- 数据库初始化：`scaffold-system/sql/V1__init_schema.sql`、`V2__seed_data.sql`；记账基线：`V3__bookkeeping_schema.sql`、`V4__bookkeeping_seed.sql`；开发工具：`scaffold-admin/src/main/java/com/scaffold/admin/util/DbInit.java`。
 - 入口规范：`README.md`、`AGENTS.md`、`DESIGN.md`；建筑与工作流已移除。
 
 ## 二、业务术语词典
@@ -41,6 +41,12 @@
 | 日志查询、导出与清理 | `scaffold-system/src/main/java/com/scaffold/system/controller/MonitorController.java` | `service/SystemManagementService.java` | `mapper/SystemManagementMapper.java`；两类日志 | 已确认 |
 | 日志统计与当日泳道 | 同上 | `service/MonitorStatsService.java` | `mapper/MonitorStatsMapper.java`；两类日志（只读） | 已确认 |
 | 代码生成 | `scaffold-generator/src/main/java/com/scaffold/generator/controller/GeneratorController.java` | `service/GeneratorService.java` | `mapper/GeneratorMapper.java`；`information_schema`、两张生成配置表 | 已确认 |
+| 记账基础配置 | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/BookkeepingConfigController.java` | `service/BookkeepingConfigService.java` | `mapper/BookkeepingConfigMapper.java`；分类、支付方式、资金账户、项目表 | 已实现 |
+| 账目草稿 | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/RecordController.java` | `service/RecordService.java` | `mapper/RecordMapper.java`；`acct_record`、`acct_record_detail` | 已实现 |
+| 私有票据附件 | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/AttachmentController.java` | `service/AttachmentService.java`、`storage/LocalAttachmentStorage.java` | `mapper/AttachmentMapper.java`；`acct_record_attachment` | API 已实现，待数据库联调 |
+| 账目审核与留痕 | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/ReviewController.java` | `service/ReviewService.java`、`RecordHistoryService.java`、`domain/ReviewAction.java` | `mapper/ReviewMapper.java`；`acct_record_review`、`acct_record_version` | API 已实现，独立 MySQL 验证 |
+| OCR 配置与任务 | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/OcrController.java` | `service/OcrConfigService.java`、`OcrService.java`、`ocr/AliyunOcrProvider.java` / `AliyunOcrTransport.java`；系统 `SecretConfigService` | `OcrConfigMapper` / `OcrTaskMapper`；`sys_config`、`acct_ocr_task` | 后端与前端 API 已实现，真实云调用待凭据联调 |
+| 记账业务（后续） | `scaffold-bookkeeping/src/main/java/com/scaffold/bookkeeping/controller/` | `service/` | 财务工作台、报表、服务端导出 | 待实现 |
 | 健康检查 | `scaffold-admin/src/main/java/com/scaffold/admin/controller/HealthController.java` | 无独立业务服务 | 无数据库写入 | 已确认 |
 
 | 前端功能 | 路由 | 页面文件 | API 文件 / 后端模块 | 来源 |
@@ -57,6 +63,10 @@
 | 操作日志（横带：概览 / 趋势或泳道 / 明细，抽屉级联） | `/monitor/oper-log` | `views/monitor/OperLog.vue` | `api/system.ts`；日志与统计 | 已确认 |
 | 登录日志（横带：概览 / 趋势或热力 / 异常 / 明细） | `/monitor/login-log` | `views/monitor/LoginLog.vue` | 同上 + `login-logs/heatmap` | 已确认 |
 | 代码生成（三步流水线抽屉） | `/tool/generator` | `views/tool/Generator.vue` + `components/business/GeneratorPipeline.vue` | `api/portal.ts`；生成器 | 已确认 |
+| 账目列表 / 编辑 / 详情 / 票据 OCR | `/bookkeeping/records` | `views/bookkeeping/Records.vue` + `components/bookkeeping/RecordList.vue`、`RecordEditor.vue`、`RecordDetail.vue`、`ReceiptPanel.vue` | `api/bookkeeping.ts`；账目、附件、审核与 OCR | 页面已实现，模拟 HTTP 浏览器验证 |
+| 审核中心 | `/bookkeeping/reviews` | `views/bookkeeping/Reviews.vue` + 共用 `RecordList.vue`、`ReviewActionDialog.vue` | 同上；审核、版本历史 | 页面已实现 |
+| 记账配置 | `/bookkeeping/config` | `views/bookkeeping/Config.vue` | 同上；分类、支付方式、资金账户、项目 CRUD | 页面已实现 |
+| 管理员 OCR 凭据 | `/bookkeeping/ocr-config` | `views/bookkeeping/OcrConfig.vue` | 同上；OCR 专用配置接口 | 页面已实现，凭据只写 |
 | 无菜单 / 无匹配页面 | `/no-access` / 通配路径 | `views/NoAccess.vue`、`views/NotFound.vue` | 路由与会话状态 | 已确认 |
 
 | 公共能力 | 文件入口 | 用途 |
@@ -112,6 +122,30 @@
 | 日志统计 / 泳道 | `GET /monitor/oper-logs/stats`、`GET /monitor/oper-logs/timeline`、`GET /monitor/login-logs/stats` | 同上 | 已确认 |
 | 生成器表与导入 | `GET /tool/generator/tables`、`GET /tool/generator/importable-tables`、`POST /tool/generator/import` | `GeneratorController` | 已确认 |
 | 生成器配置与输出 | `PUT /tool/generator/tables/{id}`；其后追加 `GET /columns`、`GET /preview`、`POST /generate`、`GET /download` | 同上 | 已确认 |
+| 记账基础配置 | `GET/POST /api/bookkeeping/config/categories`、`PUT/DELETE /categories/{id}`；支付方式、资金账户、项目使用对应复数路径 | `BookkeepingConfigController` | 分类、支付方式、资金账户、项目的分页与 CRUD；写入需 `bookkeeping:config:edit` |
+| 记账只读录入选项 | `GET /api/bookkeeping/config/options` | `BookkeepingConfigController` → `BookkeepingConfigService.options` → `BookkeepingConfigMapper` | 需 `bookkeeping:record:list`，返回有效配置；经办人 / 部门按数据范围，仅最少字段，不授予配置管理权限 |
+| 账目草稿 | `GET/POST /api/bookkeeping/records`、`GET/PUT/DELETE /api/bookkeeping/records/{id}` | `RecordController` | 草稿明细校验、数据范围、实际发生时间排序、版本号并发控制 |
+| 私有票据 | `GET/POST /api/bookkeeping/records/{recordId}/attachments`；`GET /api/bookkeeping/attachments/{id}/download`；`PUT /attachments/{id}/primary`；`DELETE /attachments/{id}` | `AttachmentController` | 需 `bookkeeping:attachment:view/upload/remove`；元数据和下载校验账目数据范围；只有可编辑账目允许修改附件 |
+| 待审核列表 | `GET /api/bookkeeping/reviews/pending` | `ReviewController` → `ReviewService.pending` → `RecordService.list` | 固定待审核状态，复用查询、分页、发生时间排序及数据范围；需 `bookkeeping:review:list` |
+| 审核动作 | `POST /api/bookkeeping/records/{id}/submit`、`/review/approve`、`/review/return`、`/withdraw`、`/void` | `ReviewController` → `ReviewService.act` → `ReviewMapper` / `RecordHistoryService` | 分别需 `bookkeeping:record:submit/review/return/withdraw/void`；当前版本号必传，退回 / 撤回 / 作废原因必填 |
+| 审核与版本历史 | `GET /api/bookkeeping/records/{id}/reviews`、`/versions` | `ReviewController` → `RecordHistoryService` → `ReviewMapper` | 需 `bookkeeping:record:list`，按账目范围分页查询（包括软删记录）；版本附件信息额外需 `bookkeeping:attachment:view` |
+| OCR 识别与查询 | `POST /api/bookkeeping/records/{id}/ocr`；`GET /api/bookkeeping/ocr/tasks/{id}`、`/records/{id}/ocr/tasks` | `OcrController` → `OcrService` → `OcrProvider` / `OcrTaskMapper` | 需识别与附件查看权限、账目范围；同步识别，原图保留，分页恢复任务，不返回 raw_result |
+| OCR 人工确认 | `POST /api/bookkeeping/ocr/tasks/{id}/confirm` | `OcrService` → `RecordService.confirmOcr` → `RecordHistoryService` | 额外需账目编辑权限，复用完整草稿校验与版本检查；OCR_CONFIRM 快照及任务状态共用事务 |
+| OCR 配置 | `GET /api/bookkeeping/ocr/config/status`、`PUT /api/bookkeeping/ocr/config` | `OcrConfigService` → 系统 `SecretConfigService` / `OcrConfigMapper` | 需专用权限+系统管理员角色；两项 AK 加密保存，通用参数查询/导出/写操作禁止访问 OCR 命名空间 |
+
+记账前端 API 位于 `scaffold-vue/src/api/bookkeeping.ts`，通过 `src/api/index.ts` 导出；公共 `src/api/http.ts` 自动识别 `FormData`，复用登录凭据和统一错误处理。`auth.ts` 已注册 records / reviews / config / ocr-config 四个组件，未实现的 dashboard / reports 暂不注册。V4 执行后重新登录加载动态菜单。
+
+`RecordResponse` 在响应边界把 `totalAmount`（总金额）和 `details[].amount`（明细金额）转为两位小数的字符串；历史快照以 BigDecimal 读取，`RecordVersionVO` 输出前复制并转换金额。服务和数据库继续使用 BigDecimal，前端 `utils/bookkeeping.ts` 用整数分计算并只提交允许写入的字段。
+
+Web 验证入口：`scripts/verify-bookkeeping-web.cjs` 使用真实 Vue 页面、模拟 HTTP，覆盖两明细精确保存、私有预览、上传、OCR 确认、审核及权限，截图在 `output/playwright/`。启动与验证边界见 `docs/bookkeeping-web-guide.md`。
+
+票据存储使用 `BOOKKEEPING_STORAGE_ROOT`（默认后端工作目录的 `./data/bookkeeping`）；`BOOKKEEPING_ATTACHMENT_MAX_BYTES` 默认 10485760 字节。此目录不是公开静态目录，已加入 Git 忽略。上传审计通过 `OperationLogAspect` 只记录文件元数据，API Key 等敏感字段脱敏。
+
+草稿新增 / 修改 / 删除与审核动作都会追加 `acct_record_version`；审核动作额外追加 `acct_record_review`。写入使用主表行锁、条件更新和 `READ_COMMITTED`，状态、明细与快照共用事务。作废保留原明细与附件，不再处于 `POSTED`；报表后续统一只统计 `POSTED` 且未软删的记录。
+
+数据库验证入口：`scripts/test-bookkeeping-review.ps1` 自动创建独立 MySQL 8.4 容器，检查目标库和表结构、执行 V1–V4 测试基线、运行记账与财务统计测试后清理临时容器。`ReviewMySqlIntegrationTest`、`ReportMySqlIntegrationTest` 默认跳过，只有显式测试 URL 指向 `127.0.0.1:<port>/bookkeeping_review_test` 时才运行，不读取开发库配置。开发库 V3/V4 尚未执行。财务工作台与报表复用现有 `views/Dashboard.vue` 展示结构及公共组件。
+
+OCR 联调见 `docs/bookkeeping-ocr.md`。服务端环境变量 `BOOKKEEPING_SECRET_KEY` 为 Base64 编码的32字节 AES 主密钥；阿里云固定杭州 HTTPS 地址，凭据仅通过专用接口写入。`OcrMySqlIntegrationTest` 与审核测试使用同一独立容器，替换外部服务验证失败、确认回滚、重复请求、并发确认、软删附件及参数隔离；不产生真实云调用。
 
 ## 六、改动影响链
 
@@ -148,6 +182,8 @@
 | 角色、菜单、部门、岗位、字典、参数 | `system:role`、`system:menu`、`system:dept`、`system:post`、`system:dict`、`system:config`，后缀 `list/add/edit/remove` | 各模块查询导出与写入操作 |
 | 日志 | `monitor:operlog:list/remove`、`monitor:loginlog:list/remove` | 查询导出 / 删除清理 |
 | 代码生成 | `tool:gen:list` | 当前生成器全部接口 |
+| 记账工作台与报表 | `bookkeeping:dashboard:view`、`bookkeeping:report:list` | 财务总览、每日收支、分类汇总 |
+| 记账导出 | `bookkeeping:record:export` | 账目 / 财务报表 XLSX 下载；报表下载还需报表查看权限 |
 
 - 超级管理员角色编码为 `super_admin`，后端操作权限直接放行，菜单按启用和显示状态读取。
 - 业务字典选项仅需已登录；字典管理数据和写入仍使用对应权限。

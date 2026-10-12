@@ -313,7 +313,8 @@ public interface SystemManagementMapper {
     @Select("""
             SELECT COUNT(*)
             FROM sys_config c
-            WHERE (#{keyword} IS NULL OR #{keyword} = ''
+            WHERE LOWER(TRIM(c.config_key)) NOT LIKE 'bookkeeping.ocr.%'
+              AND (#{keyword} IS NULL OR #{keyword} = ''
                    OR c.config_name LIKE CONCAT('%', #{keyword}, '%')
                    OR c.config_key LIKE CONCAT('%', #{keyword}, '%'))
             """)
@@ -329,7 +330,8 @@ public interface SystemManagementMapper {
                    DATE_FORMAT(c.create_time, '%Y-%m-%d %H:%i') AS createTime,
                    c.remark
             FROM sys_config c
-            WHERE (#{keyword} IS NULL OR #{keyword} = ''
+            WHERE LOWER(TRIM(c.config_key)) NOT LIKE 'bookkeeping.ocr.%'
+              AND (#{keyword} IS NULL OR #{keyword} = ''
                    OR c.config_name LIKE CONCAT('%', #{keyword}, '%')
                    OR c.config_key LIKE CONCAT('%', #{keyword}, '%'))
             ORDER BY c.id
@@ -751,6 +753,9 @@ public interface SystemManagementMapper {
     @Delete("DELETE FROM sys_dict_data WHERE id = #{id}")
     int deleteDictData(@Param("id") Long id);
 
+    @Select("SELECT config_key FROM sys_config WHERE id = #{id}")
+    String selectConfigKey(@Param("id") Long id);
+
     @Select("""
             SELECT COUNT(*)
             FROM sys_config
@@ -775,9 +780,10 @@ public interface SystemManagementMapper {
                 remark = COALESCE(#{row.remark}, remark),
                 update_by = #{operator}
             WHERE id = #{id} AND builtin = 0
+              AND LOWER(TRIM(config_key)) NOT LIKE 'bookkeeping.ocr.%'
             """)
     int updateConfig(@Param("id") Long id, @Param("row") Map<String, Object> row, @Param("operator") String operator);
 
-    @Delete("DELETE FROM sys_config WHERE id = #{id} AND builtin = 0")
+    @Delete("DELETE FROM sys_config WHERE id = #{id} AND builtin = 0 AND LOWER(TRIM(config_key)) NOT LIKE 'bookkeeping.ocr.%'")
     int deleteConfig(@Param("id") Long id);
 }
